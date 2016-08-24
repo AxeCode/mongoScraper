@@ -8,51 +8,107 @@ var cheerio = require('cheerio');
 var ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2'
 var url = 'http://www.newyorker.com/popular?intcid=mod-most-popular'
 
-//db config
+
+//some other fun dependencies
+var logger = require('morgan');
+var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
 
-var articleSchema = new Schema({
+//middleware to use morgan and bodyparser
+app.use(logger('dev'));
+app.use(bodyParser.urlencoded({
+	extended: false
+}));
 
-})
+//public static dir
+app.use(express.static(process.cwd() + '/public'));
+var exphbs = require('express-handlebars');
+app.engine('handlebars', exphbs({
+	defaultLayout: 'main'
+}));
+app.set('view engine', 'handlebars');
 
-var scrapePage = function(error, response, html){
-	if (error || response.statusCode != 200){
-		console.log(error);
-	}
-	else{
-		var result = [];
-		var $ = cheerio.load(html);
+//connect to db
+mongoose.connect('mongodb://localhost/new_yorker_scraper');
+var db = mongoose.connection;
 
-		$('.popular-page1').each(function(i, element){
+//show any errors
+db.on('error', function(err){
+	console.log('Mongoose Error: ' + err);
+});
 
-		var title = $(this).children('article').children('figure').children('a').children('img').attr('alt');
+//show inevitable success
+db.once('open', function(){
+	console.log('Mongoose connection a success!');
+});
 
-		var img_url = $(this).children('article').children('figure').children('a').children('img').attr('src');
+//rounding up the model
+var Article = require('./models/articles.js');
 
-		var link = $(this).children('article').children('figure').children('a').attr('href');
+//home
+app.get('/', function(req,res){
+	res.send('sup');
+});
 
-		var author = $(this).children('article').children('.text').children('h3').children('a').text();
-
-		var author_url = $(this).children('article').children('.text').children('h3').children('a').attr('href');;
-
-		result.push({
-			title: title,
-			img_url: img_url,
-			link: link,
-			author: author,
-			author_url: author_url});
-		});
-
-		console.log(result);
-	}
-}
-
-request(
-	{
-		url: url,
-		headers: {
-			"User-Agent" : ua
+app.get('/scrape', function(req,res){
+	var scrapePage = function(error, response, html){
+		if (error || response.statusCode != 200){
+			console.log(error);
 		}
-	}, scrapePage
-);
+		else{
+			var result = {};
+			var $ = cheerio.load(html);
+
+			$('.popular-page1').each(function(i, element){
+
+				result.title = $(this).children('article').children('figure').children('a').children('img').attr('alt');
+
+				result.img_url = $(this).children('article').children('figure').children('a').children('img').attr('src');
+
+				result.link = $(this).children('article').children('figure').children('a').attr('href');
+
+				result.author = $(this).children('article').children('.text').children('h3').children('a').text();
+
+				result.author_url = $(this).children('article').children('.text').children('h3').children('a').attr('href');;
+
+				var entry = new Article(result);
+
+				entry.save(function(err,doc){
+					if(err){
+						console.log(err);
+					}
+					else{
+						console.log(doc);
+					}
+				});
+			});
+		}
+	}
+
+	request(
+		{
+			url: url,
+			headers: {
+				"User-Agent" : ua
+			}
+		}, scrapePage
+	);
+
+	res.send("scraped");
+});
+
+app.get('/articles', function(req,res){
+	Article.find({},function(err,doc){
+		if(err){
+			console.log(err);
+		}
+		else{
+			res.json(doc);
+		}
+	});
+});
+
+var PORT = process.env.PORT || 3000
+app.listen(PORT, function(){
+	console.log("Listening at Port " + PORT)
+});
