@@ -47,8 +47,21 @@ var Article = require('./models/articles.js');
 
 //home
 app.get('/', function(req,res){
-	res.send('sup');
+	res.render('index');
 });
+
+app.get('/articles', function(req,res){
+	Article.find({}, function(err, doc){
+		// log any errors
+		if (err){
+			console.log(err);
+		} 
+		// or send the doc to the browser as a json object
+		else {
+			res.json(doc);
+		}
+	});
+})
 
 app.get('/scrape', function(req,res){
 	var scrapePage = function(error, response, html){
@@ -94,7 +107,7 @@ app.get('/scrape', function(req,res){
 		}, scrapePage
 	);
 
-	res.send("scraped");
+	res.send("Scrape Complete");
 });
 
 app.get('/articles', function(req,res){

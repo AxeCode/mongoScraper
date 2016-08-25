@@ -1,0 +1,10 @@
+#main{
+	background-image: url('../img/landingpage_bg.jpg');
+	background-repeat: repeat;
+}
+
+.individArticle{
+	background-color: #eee;
+	padding: 20px;
+	margin: 20px;
+}
