@@ -107,7 +107,7 @@ app.get('/scrape', function(req,res){
 		}, scrapePage
 	);
 
-	res.send("Scrape Complete");
+	res.redirect("/");
 });
 
 app.get('/articles', function(req,res){
