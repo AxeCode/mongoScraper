@@ -9,16 +9,15 @@ $(document).on('click', "#mainButton", function(){
 			var count = 1;
 			for (var i =0; i < 30; i++){
 				$("#articles").append(
-					"<div class='col-md-8 individArticle' data-id=" + data[i]._id + "><img src='" + "'><h3>" + count + '. ' + data[i].title  +
+					"<div class='individArticle' data-id=" + data[i]._id + "><img src='" + "'><h3>" + count + '. ' + data[i].title  +
 					"</h3><p>" + data[i].author + "</p>" +
-		        		"<p><a href='" + data[i].link + "' class='btn btn-primary' role='button'>Link</a> <a href='' class='btn btn-default' role='button' id='commentButton'>Comment</a></p>" +
-		      				"</div><div class='col-md-4' id='notes'></div>")
+		        		"<p><a href='" + data[i].link + "' class='btn btn-primary' role='button'>Link</a> <a href='/articles/" + data[i]._id +"' class='btn btn-default' role='button' id='commentButton'>Comment</a></p>" +
+		      				"</div>")
 				count++;
 			}
 		});
 	});
 });
-
 
 // whenever someone clicks a p tag
 $(document).on('click', 'p', function(){
