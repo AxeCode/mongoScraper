@@ -29,7 +29,7 @@ app.engine('handlebars', exphbs({
 app.set('view engine', 'handlebars');
 
 //connect to db
-mongoose.connect('mongodb://localhost/new_yorker_scraper');
+mongoose.connect('mongodb://heroku_s3pph1qd:munmaalmkmkse33vvv7qtk7s99@ds017636.mlab.com:17636/heroku_s3pph1qd');
 var db = mongoose.connection;
 
 //show any errors
