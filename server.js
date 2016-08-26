@@ -44,11 +44,13 @@ db.once('open', function(){
 
 //rounding up the model
 var Article = require('./models/articles.js');
+var Comment = require('./models/comments.js');
 
 //home
 app.get('/', function(req,res){
 	res.render('index');
 });
+
 
 app.get('/articles', function(req,res){
 	Article.find({}, function(err, doc){
@@ -61,7 +63,51 @@ app.get('/articles', function(req,res){
 			res.json(doc);
 		}
 	});
-})
+});
+
+app.get('/articles/:id', function(req,res){
+	Article.findOne({'_id': req.params.id})
+		.populate('comment')
+		.exec(function(err,doc){
+			if(err){
+				console.log(err);
+			}
+			else{
+				res.json(doc);
+			}
+		});
+});
+
+app.post('/articles/:id', function(req, res){
+	// create a new note and pass the req.body to the entry.
+	var newComment = new Comment(req.body);
+
+	// and save the new note the db
+	newComment.save(function(err, doc){
+		// log any errors
+		if(err){
+			console.log(err);
+		} 
+		// otherwise
+		else {
+			// using the Article id passed in the id parameter of our url, 
+			// prepare a query that finds the matching Article in our db
+			// and update it to make it's lone note the one we just saved
+			Article.findOneAndUpdate({'_id': req.params.id}, {'note':doc._id})
+			// execute the above query
+			.exec(function(err, doc){
+				// log any errors
+				if (err){
+					console.log(err);
+				} else {
+					// or send the document to the browser
+					res.send(doc);
+				}
+			});
+		}
+	});
+});
+
 
 app.get('/scrape', function(req,res){
 	var scrapePage = function(error, response, html){
@@ -108,17 +154,6 @@ app.get('/scrape', function(req,res){
 	);
 
 	res.redirect("/");
-});
-
-app.get('/articles', function(req,res){
-	Article.find({},function(err,doc){
-		if(err){
-			console.log(err);
-		}
-		else{
-			res.json(doc);
-		}
-	});
 });
 
 var PORT = process.env.PORT || 3000
