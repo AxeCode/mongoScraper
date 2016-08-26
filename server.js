@@ -66,7 +66,7 @@ app.get('/articles', function(req,res){
 
 app.get('/articles/:id', function(req,res){
 	Article.findOne({'_id': req.params.id})
-		.populate('comment')
+		.populate('Comment')
 		.exec(function(err,doc){
 			if(err){
 				console.log(err);
@@ -100,11 +100,12 @@ app.post('/articles/:id', function(req, res){
 				if (err){
 					console.log(err);
 				} else {
-					res.redirect('/');
+					res.render('comments', doc);
 				}
 			});
 		}
 	});
+
 });
 
 
