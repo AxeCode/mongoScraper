@@ -4,18 +4,19 @@
 <h3>{{author}}</h3>
 <br>
 <div id='comments'>
-	{{#each Comment}}
-	<p>{{this}}</p>
+	{{#each this.comments}}
+	<p>{{this.comments.content}}</p>
+	<p>{{this.comments.author}}</p>
 	{{/each}}
 </div>
 <form name='commentForm' action='/articles/{{id}}' method="POST">
 <div class="form-group">
-  <label for="usr">Name:</label>
-  <input type="text" class="form-control" id="author">
+  <label for="author">Name:</label>
+  <input type="text" class="form-control" id="author" name="author">
 </div>
 <div class="form-group">
-  <label for="pwd">Comment:</label>
-  <input type="text" class="form-control" id="content">
+  <label for="content">Comment:</label>
+  <input type="text" class="form-control" id="content" name="content">
 </div>
 <button type="submit" class="btn btn-primary" id='commentSubmit'>Submit</button>
 </form>

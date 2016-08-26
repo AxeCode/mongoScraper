@@ -66,7 +66,7 @@ app.get('/articles', function(req,res){
 
 app.get('/articles/:id', function(req,res){
 	Article.findOne({'_id': req.params.id})
-		.populate('Comment')
+		.populate('comments')
 		.exec(function(err,doc){
 			if(err){
 				console.log(err);
@@ -93,7 +93,7 @@ app.post('/articles/:id', function(req, res){
 			// using the Article id passed in the id parameter of our url, 
 			// prepare a query that finds the matching Article in our db
 			// and update it to make it's lone note the one we just saved
-			Article.findOneAndUpdate({'_id': req.params.id}, {'comment':doc._id})
+			Article.findOneAndUpdate({'_id': req.params.id}, {'comments':doc._id})
 			// execute the above query
 			.exec(function(err, doc){
 				// log any errors
@@ -101,6 +101,7 @@ app.post('/articles/:id', function(req, res){
 					console.log(err);
 				} else {
 					res.render('comments', doc);
+					console.log(doc);
 				}
 			});
 		}
