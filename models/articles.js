@@ -1,35 +1,31 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var Comments = require("./comments.js");
 
 var ArticleSchema = new Schema({
 	title:{
-		type:String,
-		required:true,
-		unique: true
+		type:String
 	},
 	img_url:{
-		type:String,
-		required:true,
-		unique: true
+		type:String
 	},
 	link:{
-		type:String,
-		required:true,
-		unique: true
+		type:String
 	},
 	author:{
-		type:String,
-		required:true,
-		unique: true
+		type:String
 	},
 	author_url:{
-		type:String,
-		required:true
+		type:String
 	},
-	comments:{
+	date:{
+		type: Date,
+		default: Date.now
+	},
+	comments:[{
 		type: Schema.Types.ObjectId,
 		ref: 'Comment'
-	}
+	}]
 });
 
 var Article = mongoose.model('Article', ArticleSchema);

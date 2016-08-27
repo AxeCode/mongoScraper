@@ -4,9 +4,10 @@
 <h3>{{author}}</h3>
 <br>
 <div id='comments'>
-	{{#each this.comments}}
-	<p>{{this.comments.content}}</p>
-	<p>{{this.comments.author}}</p>
+	{{#each comments}}
+	<p><strong>Comment: </strong>{{content}}</p>
+	<p><strong>Author: </strong>{{author}}</p>
+	<hr>
 	{{/each}}
 </div>
 <form name='commentForm' action='/articles/{{id}}' method="POST">
@@ -19,6 +20,7 @@
   <input type="text" class="form-control" id="content" name="content">
 </div>
 <button type="submit" class="btn btn-primary" id='commentSubmit'>Submit</button>
+<a type="button" href='/' class="btn btn-primary" id="backButton">Go Back</a>
 </form>
 </div>
 </body>

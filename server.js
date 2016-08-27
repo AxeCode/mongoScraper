@@ -52,17 +52,21 @@ app.get('/', function(req,res){
 });
 
 app.get('/articles', function(req,res){
-	Article.find({}, function(err, doc){
-		// log any errors
-		if (err){
-			console.log(err);
-		} 
-		// or send the doc to the browser as a json object
-		else {
-			res.json(doc);
-		}
+	Article.find({})
+		.sort({'date': -1})
+		.limit(30)
+		.exec(
+			function(err, doc){
+				// log any errors
+				if (err){
+					console.log(err);
+				} 
+				// or send the doc to the browser as a json object
+				else {
+					res.json(doc);
+				}
+			});
 	});
-});
 
 app.get('/articles/:id', function(req,res){
 	Article.findOne({'_id': req.params.id})
@@ -72,8 +76,9 @@ app.get('/articles/:id', function(req,res){
 				console.log(err);
 			}
 			else{
+				console.log("COMMENTS OH MY",doc);
 				res.render('comments', doc);
-				console.log(doc);
+				
 			}
 		});
 });
@@ -93,16 +98,16 @@ app.post('/articles/:id', function(req, res){
 			// using the Article id passed in the id parameter of our url, 
 			// prepare a query that finds the matching Article in our db
 			// and update it to make it's lone note the one we just saved
-			Article.findOneAndUpdate({'_id': req.params.id}, {'comments':doc._id})
-			// execute the above query
-			.exec(function(err, doc){
-				// log any errors
-				if (err){
-					console.log(err);
-				} else {
-					res.render('comments', doc);
-					console.log(doc);
-				}
+			Article.findOneAndUpdate({'_id': req.params.id}, {$push: {'comments':doc._id}}, {new: true, upsert: true})
+				.populate('comments')
+				.exec(function(err, doc){
+					console.log("COMMENTS", doc)
+					// log any errors
+					if (err){
+						console.log(err);
+					} else {
+						res.render('comments', doc);
+					}
 			});
 		}
 	});
@@ -111,6 +116,7 @@ app.post('/articles/:id', function(req, res){
 
 
 app.get('/scrape', function(req,res){
+	
 	var scrapePage = function(error, response, html){
 		if (error || response.statusCode != 200){
 			console.log(error);
@@ -121,7 +127,7 @@ app.get('/scrape', function(req,res){
 
 			$('.popular-page1').each(function(i, element){
 
-				result.title = $(this).children('article').children('figure').children('a').children('img').attr('alt');
+				result.title = $(this).children('article').children('span').find('a').text();
 
 				result.img_url = $(this).children('article').children('figure').children('a').children('img').attr('src');
 
@@ -133,14 +139,17 @@ app.get('/scrape', function(req,res){
 
 				var entry = new Article(result);
 
-				entry.save(function(err,doc){
-					if(err){
-						console.log(err);
-					}
-					else{
-						console.log(doc);
-					}
-				});
+					entry.save(function(err,doc){
+						if(err){
+							console.log(err);
+						}
+						else{
+							console.log(doc);
+						}
+
+					});
+
+				
 			});
 		}
 	}
